@@ -1,0 +1,439 @@
+﻿@model ShoppingSite.Models.CustomerOrder
+@{ 
+}
+@{
+    var lstProduct = ShoppingSite.Models.Product.lstProduct;
+
+    var quantity = new SelectList(new List<Object>{ 
+                        new { value = "" , text = "Select"  },            
+                       new { value = "1" , text = "1"  },
+                       new { value = "2" , text = "2"  },
+                       new { value = "3" , text = "3"  },
+                       new { value = "4" , text = "4"  },
+                       new { value = "5" , text = "5"  },
+                       new { value = "6" , text = "6"  },
+                       new { value = "7" , text = "7"  },
+                       new { value = "8" , text = "8"  },
+                       new { value = "9" , text = "9"  },
+                       new { value = "10" , text = "10"  },        
+                                
+    },
+              "value",
+              "text"
+              );
+}
+@{
+    ViewBag.Title = "Order";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<link href="@Url.Content("~/Content/css/spryTabbedPanels.css")" rel="stylesheet" type="text/css" />
+<script src="@Url.Content("~/Content/js/spryTabbedPanels.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.validate.unobtrusive.min.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Scripts/jquery.unobtrusive-ajax.min.js")" type="text/javascript"></script>
+
+<!-- Content Start -->
+<div class="content">
+    <!-- Package Start -->
+    <div class="package">
+        <div class="leftCol">
+            <div class="offerDiv">
+                <div class="offerHead">
+                    <h2>
+                        Order Form
+                    </h2>
+                    <div class="Product_heading" id="divProductAddOnName">
+                    </div>
+                    <input type="hidden" id="hdnProductName" /><input type="hidden" id="hdnAddOnNames" />
+                </div>
+                <div class="offerPod-inner">
+                    <div id="TabbedPanels1" class="TabbedPanels">
+                        <ul class="TabbedPanelsTabGroup">
+                            <li id="tabPackage" class="TabbedPanelsTab" tabindex="0">Choose</li>
+                            <li id="tabAddOn" class="TabbedPanelsTab" tabindex="0">Customize</li>
+                            <li id="tabInformation" class="TabbedPanelsTab" tabindex="0">Customer Details</li>
+                            <li id="tabThanks" class="TabbedPanelsTab none" tabindex="0">Thanks</li>
+                        </ul>
+                        <div class="TabbedPanelsContentGroup">
+                            <div class="TabbedPanelsContent TabbedPanelsContentOne TabbedPanelsContentVisible"
+                                 style="display: block;">   
+                                <div class="offer-cont">
+                                      @foreach (var item in lstProduct)
+                                    {
+                                        <div class="offer-box">
+                                           <h2> @item.ProductName </h2>
+                                           @Html.Raw(item.Description)
+                                            <div><img src=@item.ImageUrl /></div>
+                                            <div class="fieldQuantity">
+                                                <label>
+                                                    Quantity
+                                                </label>
+                                                @Html.DropDownListFor(model => model.ProductQuantity, quantity)
+                                            </div>
+                                            <h3>@item.Size</h3>
+                                            <h2> $ @item.Price </h2>
+                                            <a href="javascript:void(0)" onclick="addProduct(@item.ProductID,'@item.ProductName')" class="order-btn3 orderbtngrid">Next Step</a>
+                                        </div>
+                                      }
+                                </div>
+                            </div>
+                            <div class="TabbedPanelsContent TabbedPanelsContentTwo" style="display: none;">
+                                <div class="offer-cont">
+                                      @for (var i = 0; i < Model.AddOns.Count; i++) 
+                                      {
+                                          <div class="addon-box">
+                                              @Html.CheckBoxFor(m => m.AddOns[i].IsChecked)
+                                              @Html.HiddenFor(m => m.AddOns[i].AddOnID)
+                                              @Html.HiddenFor(m => m.AddOns[i].Price)
+                                              @Html.DisplayFor(m => m.AddOns[i].Description)
+                                            <h2> $ @Model.AddOns[i].Price </h2>
+                                        </div>
+                                       }
+                                    @*<input id="Submit1" type="submit" value="Next Step" class="order-btn3 orderbtngrid" onclick="addAddOns()" />*@
+                                    <a href="javascript:void(0)" onclick="addAddOns()"  class="order-btn3 orderbtngrid">Next Step</a>
+                                </div>
+                            </div>                          
+                                        <div class="TabbedPanelsContent TabbedPanelsContentThree" style="display: none;">
+                               @using (Ajax.BeginForm("Order", "Home", new AjaxOptions { UpdateTargetId = "divResult", OnSuccess = "setThanks()" }))
+                               {                                         
+                                @Html.ValidationSummary(true)
+                                <div class="offer-cont">
+                                    <div class="form-box">
+                                        @Html.HiddenFor(model => model.ProductID)
+                                        @Html.ValidationMessageFor(model => model.ProductID)
+                                        @Html.HiddenFor(model => model.ProductQuantity)
+                                        @Html.ValidationMessageFor(model => model.ProductQuantity)
+                                        @Html.HiddenFor(model => model.ProductName)
+                                        @Html.ValidationMessageFor(model => model.ProductName)
+                                        <div class="fields">
+                                            <label>
+                                                Customer Name <span>*</span>
+                                            </label>
+                                            @Html.TextBoxFor(model => model.Customer.CustomerName, new { maxlength = "50" })
+                                            <div class="alert">
+                                                <p>
+                                                    @Html.ValidationMessageFor(model => model.Customer.CustomerName)
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fields">
+                                            <label>
+                                                Phone <span>*</span>
+                                            </label>
+                                            @Html.TextBoxFor(model => model.Customer.Phone, new { maxlength = "10" })
+                                            <div class="alert">
+                                                <p>
+                                                    @Html.ValidationMessageFor(model => model.Customer.Phone)
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fieldBig">
+                                            <label>
+                                                Address Line 1 <span>*</span>
+                                            </label>
+                                            @Html.EditorFor(model => model.Customer.AddressLine1, new { maxlength = "100" })
+                                            <div class="alert">
+                                                <p>
+                                                    @Html.ValidationMessageFor(model => model.Customer.AddressLine1)
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fieldSmall">
+                                            <label>
+                                                Address Line 2
+                                            </label>
+                                            @Html.EditorFor(model => model.Customer.AddressLine2, new { maxlength = "50" })
+                                            <div class="alert">
+                                                <p>
+                                                    @Html.ValidationMessageFor(model => model.Customer.AddressLine2)
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fieldSmall">
+                                            <label>
+                                                City <span>*</span>
+                                            </label>
+                                            @Html.EditorFor(model => model.Customer.City, new { maxlength = "25" })
+                                            <div class="alert">
+                                                <p>
+                                                    @Html.ValidationMessageFor(model => model.Customer.City)
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fieldSmall">
+                                            <label>
+                                                Postal Code <span>*</span>
+                                            </label>
+                                            @Html.TextBoxFor(model => model.Customer.PostalCode, new { maxlength = "7" })
+                                            <div class="alert">
+                                                <p>
+                                                    @Html.ValidationMessageFor(model => model.Customer.PostalCode)
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fieldBig">
+                                            <label>
+                                                Comments
+                                            </label>
+                                            @Html.TextAreaFor(model => model.Customer.Comments, new {maxlength = "200" })
+                                            <div class="alert">
+                                                <p>
+                                                    @Html.ValidationMessageFor(model => model.Customer.Comments)
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="fields">
+                                            <label>
+                                            </label>
+                                            <p>
+                                            </p>
+                                            <div class="Product_heading" id="divProcess" style="display: none; margin-top: 20px">
+                                                <img src="@Url.Content("~/Content/images/loader.gif")" alt="Processing..." />
+                                            </div>
+                                            <div class="alert">
+                                                <p>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <input type="submit" value="Submit Order" class="order-btn" onclick="validateForm(this);" />
+                                    </div>
+                                </div>
+                                }
+                                        </div>
+                            <div class="TabbedPanelsContent TabbedPanelsContentFour" style="display: none;">
+                                <div class="offer-cont">
+                                    <div class="form-box">
+                                        <h2>
+                                            Your order has been placed!
+                                        </h2>
+                                        <div id="divResult" style="display: none">
+                                        </div>
+                                        <div class="form-box" id="divThanks">
+                                            <div class="fieldBig">
+                                                <label>
+                                                    Order Confirmation No. <span></span>
+                                                </label>
+                                                <div class="textGrid">
+                                                    [0]
+                                                </div>
+                                                <div class="alert">
+                                                    <p>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <h2> Customer Summary </h2>
+                                            <div class="fields">
+                                                <label>
+                                                    Customer Name <span></span>
+                                                </label>
+                                                <div class="textGrid">
+                                                    [1]
+                                                </div>
+                                                <div class="alert">
+                                                    <p>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="fields">
+                                                <label>
+                                                    Contact Phone <span></span>
+                                                </label>
+                                                <div class="textGrid">
+                                                    [2]
+                                                </div>
+                                                <div class="alert">
+                                                    <p>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="fields">
+                                                <label>
+                                                    Address Line 1<span></span>
+                                                </label>
+                                                <div class="textGrid">
+                                                    [3]
+                                                </div>
+                                                <div class="alert">
+                                                    <p>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="fields">
+                                                <label>
+                                                    Address Line 2 <span></span>
+                                                </label>
+                                                <div class="textGrid">
+                                                    [4]
+                                                </div>
+                                                <div class="alert">
+                                                    <p>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="fields">
+                                                <label>
+                                                    City <span></span>
+                                                </label>
+                                                <div class="textGrid">
+                                                    [5]
+                                                </div>
+                                                <div class="alert">
+                                                    <p>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="fields">
+                                                <label>
+                                                    Postal Code <span></span>
+                                                </label>
+                                                <div class="textGrid">
+                                                    [6]
+                                                </div>
+                                                <div class="alert">
+                                                    <p>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                           
+                                            <h2> Order Summary </h2>
+                                             <div class="fields">
+                                                <label>
+                                                    Product Name <span></span>
+                                                </label>
+                                                <div class="textGrid">
+                                                    [7]
+                                                </div>
+                                                <div class="alert">
+                                                    <p>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div class="fields">
+                                                <label>
+                                                    Product Quantity
+                                                </label>
+                                                <p>
+                                                </p>
+                                                <div class="textGrid">
+                                                    [8]
+                                                </div>
+                                                <div class="alert">
+                                                    <p>
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div class="fields">
+                                                <label>
+                                                    Total <span></span>
+                                                </label>
+                                                <div class="textGrid">
+                                                    [9]
+                                                </div>
+                                                <div class="alert">
+                                                    <p>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        
+                                            <div class="fieldBig">
+                                                <label>
+                                                    Add Ons <span></span>
+                                                </label>
+                                                <div class="textGrid">
+                                                    [10]
+                                                </div>
+                                                <div class="alert">
+                                                    <p>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                                    </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Package End -->
+</div>
+<!-- Content End -->
+<script type="text/javascript">
+    //Tab Handling code
+    var IsThanksTab = false;
+    function IsNavigate(tabID) {
+        if (IsThanksTab && tabID == "tabThanks") {
+            return true;
+        }
+        if ($('#ProductName').val() == "" || tabID == "tabThanks" || IsThanksTab)
+            return false;
+        else if ($('#ProductName').val() == "" && (tabID == "tabInformation" || tabID == "tabThanks"))
+            return false;
+
+        return true;
+    }
+
+    var TabbedPanels1 = new Spry.Widget.TabbedPanels("TabbedPanels1");
+    Spry.Widget.TabbedPanels.prototype.onTabClick = function (e, tab) {
+        if (IsNavigate(tab.id))
+            this.showPanel(tab);
+        else
+            return this.cancelEvent(e);
+    };
+
+    function validateForm(btn) {
+        if ($('#form0').valid()) {
+            $('#divProcess').show();
+            $(btn).hide();
+        }
+    }
+
+    function addProduct(id, Name) {
+        $('#ProductID').val(id);
+        $('#ProductName').val(Name);
+        var q = $('.fieldQuantity select');
+        for (var i = 0; i < q.length; i++) {
+            if (q[i].value != "")
+                $('#ProductQuantity').val(q[i].value);
+            else
+                $('#ProductQuantity').val("1");
+        }
+        $('#divProductAddOnName').html(Name);
+        TabbedPanels1.showPanel(TabbedPanels1.getTabs()[1])
+    }
+
+    function addAddOns() {
+        var a = $('.offer-cont input[type=checkbox]');
+        var str = "";
+        for (var i = 0; i < a.length; i++) {
+            if (a[i].checked) {
+                str += a[i].id + "|";
+            }
+        }
+        var url = "/Home/SaveOrderDetails";
+        $.post(url, { strAddOn: str, ProductQuantity: $('#ProductQuantity').val() }, function (data) {
+            $('#divProductAddOnName').html($('#ProductName').val() + ' | ' + data);
+        });
+
+        if (str == "") {
+            $('#divProductAddOnName').html($('#ProductName').val());
+        }
+
+        TabbedPanels1.showPanel(TabbedPanels1.getTabs()[2])
+    }
+
+    function setThanks() {
+        IsThanksTab = true;
+        //$('#tabThanks').click();
+        TabbedPanels1.showPanel(TabbedPanels1.getTabs()[3])
+        $.each($('#divResult').html().split(','), function (index, value) {
+            $("#divThanks .textGrid:contains('[" + index + "]')").html(value)
+        });
+        $('body').scrollTop(300);
+
+        $('#tabThanks').remveClass('none');
+    }
+</script>
